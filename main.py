@@ -2,10 +2,15 @@ from multiprocessing import Process, Pipe
 from os import getpid
 
 def calc_recv_timestamp(recv_time_stamp, counter, pid):
-    pid_counter = max(recv_time_stamp[pid], counter[pid]) + 1
+    counter_ = [0] * 3
 
-    recv_time_stamp[pid] = pid_counter
-    return recv_time_stamp
+    for i in range(len(counter)):
+        counter_[i] = max(recv_time_stamp[i], counter[i])
+
+    pid_counter = max(recv_time_stamp[pid], counter_[pid]) + 1
+
+    counter_[pid] = pid_counter
+    return counter_
 
 def event(pid, counter):
     counter[pid] += 1
@@ -15,7 +20,7 @@ def event(pid, counter):
 
 def send_message(pipe, pid, counter):
     counter[pid] += 1
-    pipe.send(('Empty shell', counter))
+    pipe.send(('Some message', counter))
 
     print('Message sent from ' + str(pid))
     print('Vector clocks: ', str(counter))
